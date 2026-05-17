@@ -21,20 +21,11 @@
     path: "/opt/result"
     state: present
 
-- name: Add shim to support legacy pg.connect in modern pg@8
-  blockinfile:
+- name: Add pg.connect support to server.js
+  lineinfile:
     path: /opt/result/server.js
     insertbefore: BOF
-    marker: "// {mark} ANSIBLE MANAGED BLOCK"
-    block: |
-      // Shim to support legacy pg.connect in modern pg@8
-      var pg_orig = require('pg');
-      var pool_shim = new pg_orig.Pool({
-        connectionString: "postgres://" + process.env['POSTGRESQL_USER'] + ':' + process.env['POSTGRESQL_PASSWORD'] + "@" + process.env['POSTGRESQL_HOST'] + ':' + process.env['POSTGRESQL_PORT'] + '/' + process.env['POSTGRESQL_DB']
-      });
-      pg_orig.connect = function(uri, callback) {
-        pool_shim.connect(callback);
-      };
+    line: 'require("pg").connect = function(c,cb){ if(!this.p)this.p=new this.Pool({connectionString:c}); this.p.connect(cb); };'
 
 - name: Copy systemd service file for Result
   template:
