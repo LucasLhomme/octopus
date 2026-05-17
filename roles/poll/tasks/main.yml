@@ -1,0 +1,24 @@
+- name: Extract poll.tar directly to the remote server
+  unarchive:
+    src: poll.tar
+    dest: /opt
+    creates: /opt/poll/app.py
+
+- name: Install Python application dependencies
+  pip:
+    requirements: /opt/poll/requirements.txt
+    extra_args: --break-system-packages
+
+- name: Copy systemd service file for Poll
+  template:
+    src: "{{ role_path }}/files/poll.service"
+    dest: /etc/systemd/system/poll.service
+  notify: restart poll
+
+- name: Start and enable Poll service
+  systemd:
+    name: poll
+    state: started
+    enabled: yes
+    daemon_reload: yes
+

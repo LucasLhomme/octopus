@@ -1,0 +1,10 @@
+*venv*/*
+.vagrant/
+*.log
+*.zip
+B-DOP-400_octopus.pdf
+Vagrantfile
+octopus-setup.sh
+TESTING.md
+test.sh
+octopus.md

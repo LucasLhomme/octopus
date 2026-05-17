@@ -1,0 +1,20 @@
+- name: install redis-server
+  apt:
+    name: redis-server
+    state: present
+    update_cache: yes
+
+- name: config redis-server
+  copy:
+    dest: /etc/redis/redis.conf
+    src: redis.conf
+    owner: redis
+    group: redis
+    mode: '0640'
+  notify: setup redis-server
+
+- name: start redis-server
+  systemd:
+    name: "redis-server"
+    state: started
+    enabled: yes

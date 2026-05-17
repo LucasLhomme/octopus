@@ -1,0 +1,15 @@
+[Unit]
+Description=poll
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/poll
+ExecStart=/usr/bin/python3 app.py
+Environment="REDIS_HOST={{ redis_host }}"
+Environment="REDIS_PORT={{ redis_port }}"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

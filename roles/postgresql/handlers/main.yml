@@ -1,0 +1,12 @@
+- name: mark schema as imported
+  file:
+    path: /var/lib/postgresql/.schema_imported
+    state: touch
+    owner: postgres
+    group: postgres
+    mode: '0644'
+
+- name: restart postgresql
+  systemd:
+    name: postgresql
+    state: restarted

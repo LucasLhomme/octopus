@@ -1,0 +1,4 @@
+- name: setup redis-server
+  systemd:
+    name: "redis-server"
+    state: restarted

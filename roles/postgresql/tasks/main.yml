@@ -1,0 +1,68 @@
+- name: Download PostgreSQL GPG key
+  get_url:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    dest: /etc/apt/trusted.gpg.d/apt.postgresql.org.asc
+    mode: '0644'
+
+- name: Add PostgreSQL official APT repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/apt.postgresql.org.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+    update_cache: yes
+
+- name: Install PostgreSQL and Python dependencies
+  apt:
+    name:
+      - postgresql-16
+      - python3-psycopg2
+      - acl
+    state: present
+    update_cache: yes
+
+- name: Copy pg_hba.conf to the PostgreSQL server
+  copy:
+    src: pg_hba.conf
+    dest: /etc/postgresql/16/main/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: '0640'
+  notify: restart postgresql
+
+- name: Configure PostgreSQL to listen on all network interfaces
+  lineinfile:
+    path: /etc/postgresql/16/main/postgresql.conf
+    regexp: "^#?listen_addresses\\s*=.*"
+    line: "listen_addresses = '*'"
+  notify: restart postgresql
+
+- name: Create PostgreSQL user paul
+  community.postgresql.postgresql_user:
+    name: "{{ postgres_user }}"
+    password: "{{ postgres_password }}"
+    role_attr_flags: "NOSUPERUSER,NOCREATEDB,NOCREATEROLE"
+  become_user: postgres
+
+- name: Create PostgreSQL database paul
+  community.postgresql.postgresql_db:
+    name: "{{ postgres_db }}"
+    owner: "{{ postgres_user }}"
+    state: present
+  become_user: postgres
+
+- name: Copy schema.sql to the remote server
+  copy:
+    src: schema.sql
+    dest: /tmp/schema.sql
+
+- name: Import schema into paul database
+  ansible.builtin.command: psql -U postgres -d paul -f /tmp/schema.sql
+  become_user: postgres
+  args:
+    creates: /var/lib/postgresql/.schema_imported
+  notify: mark schema as imported
+
+- name: Start and enable PostgreSQL service
+  systemd:
+    name: postgresql
+    state: started
+    enabled: yes

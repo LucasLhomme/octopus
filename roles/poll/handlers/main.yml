@@ -1,0 +1,4 @@
+- name: restart poll
+  systemd:
+    name: poll
+    state: restarted

@@ -1,0 +1,29 @@
+- name: Extract result.tar directly to the remote server
+  unarchive:
+    src: result.tar
+    dest: /opt
+    creates: /opt/result/package.json
+
+- name: download npm and nodejs
+  apt:
+    name: [ "nodejs", "npm" ]
+    state: present
+    update_cache: yes
+    
+- name: install npm dependencies
+  npm:
+    path: "/opt/result"
+    state: present
+
+- name: Copy systemd service file for Result
+  template:
+    src: "{{ role_path }}/files/result.service"
+    dest: /etc/systemd/system/result.service
+  notify: restart result
+
+- name: Start and enable Result service
+  systemd:
+    name: result
+    state: started
+    enabled: yes
+    daemon_reload: yes
