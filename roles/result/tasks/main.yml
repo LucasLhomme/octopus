@@ -10,15 +10,14 @@
     state: present
     update_cache: yes
     
+- name: Upgrade pg driver version in package.json to pg@8 to prevent hanging on Node 18+
+  lineinfile:
+    path: /opt/result/package.json
+    search_string: '"pg": "^4.4.3"'
+    line: '    "pg": "^8.11.0",'
+
 - name: install npm dependencies
   npm:
-    path: "/opt/result"
-    state: present
-
-- name: Upgrade pg driver to latest version to prevent hanging on Node 18+
-  npm:
-    name: pg
-    version: "8"
     path: "/opt/result"
     state: present
 
@@ -48,4 +47,3 @@
     name: result
     state: started
     enabled: yes
-    daemon_reload: yes
