@@ -15,6 +15,28 @@
     path: "/opt/result"
     state: present
 
+- name: Upgrade pg driver to latest version to prevent hanging on Node 18+
+  npm:
+    name: pg
+    version: "8"
+    path: "/opt/result"
+    state: present
+
+- name: Add shim to support legacy pg.connect in modern pg@8
+  blockinfile:
+    path: /opt/result/server.js
+    insertbefore: BOF
+    marker: "// {mark} ANSIBLE MANAGED BLOCK"
+    block: |
+      // Shim to support legacy pg.connect in modern pg@8
+      var pg_orig = require('pg');
+      var pool_shim = new pg_orig.Pool({
+        connectionString: "postgres://" + process.env['POSTGRESQL_USER'] + ':' + process.env['POSTGRESQL_PASSWORD'] + "@" + process.env['POSTGRESQL_HOST'] + ':' + process.env['POSTGRESQL_PORT'] + '/' + process.env['POSTGRESQL_DB']
+      });
+      pg_orig.connect = function(uri, callback) {
+        pool_shim.connect(callback);
+      };
+
 - name: Copy systemd service file for Result
   template:
     src: "{{ role_path }}/files/result.service"
