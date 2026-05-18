@@ -67,7 +67,7 @@ jobs:
       - name: Check playbook syntax
         run: |
           export ANSIBLE_VAULT_PASSWORD_FILE=/tmp/.vault_pass
-          echo "verySecretPassword" > /tmp/.vault_pass
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/.vault_pass
           ansible-playbook -i production --syntax-check playbook.yml
 
   functional-test-docker:
@@ -87,11 +87,11 @@ jobs:
 
       - name: Start Systemd-enabled Containers
         run: |
-          docker run -d --name redis --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --network octopus_net jrei/systemd-debian:11
-          docker run -d --name postgresql --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --network octopus_net jrei/systemd-debian:11
-          docker run -d --name poll --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw -p 8080:80 --network octopus_net jrei/systemd-debian:11
-          docker run -d --name result --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw -p 8081:80 --network octopus_net jrei/systemd-debian:11
-          docker run -d --name worker --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --network octopus_net jrei/systemd-debian:11
+          docker run -d --name redis --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw --network octopus_net jrei/systemd-debian:11
+          docker run -d --name postgresql --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw --network octopus_net jrei/systemd-debian:11
+          docker run -d --name poll --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw -p 8080:80 --network octopus_net jrei/systemd-debian:11
+          docker run -d --name result --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw -p 8081:80 --network octopus_net jrei/systemd-debian:11
+          docker run -d --name worker --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw --network octopus_net jrei/systemd-debian:11
 
       - name: Prepare Containers (Install Python 3, ca-certificates, curl, apt-utils, sudo)
         run: |
@@ -127,7 +127,7 @@ jobs:
       - name: Run Ansible Playbook (First Run - Install)
         run: |
           export ANSIBLE_VAULT_PASSWORD_FILE=/tmp/.vault_pass
-          echo "verySecretPassword" > /tmp/.vault_pass
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/.vault_pass
           
           # Run the playbook targeting the Docker containers
           ansible-playbook -i inventory_docker.ini playbook.yml \
@@ -136,7 +136,7 @@ jobs:
       - name: Test Idempotency (Second Run)
         run: |
           export ANSIBLE_VAULT_PASSWORD_FILE=/tmp/.vault_pass
-          echo "verySecretPassword" > /tmp/.vault_pass
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/.vault_pass
           
           # Second pass should not make any modifications (changed=0)
           ansible-playbook -i inventory_docker.ini playbook.yml \
@@ -144,12 +144,12 @@ jobs:
           
           cat /tmp/ansible_second_run.log
           
-          # Verify that changed counts are 0
-          if grep -q -E "changed=[1-9]" /tmp/ansible_second_run.log; then
-            echo "❌ ERROR: Idempotency failed. 'changed' counts are not 0 on second run."
+          # Verify that changed, failed, unreachable, and skipped counts are all 0 in the PLAY RECAP
+          if grep -q -E "changed=[1-9]|failed=[1-9]|unreachable=[1-9]|skipped=[1-9]" /tmp/ansible_second_run.log; then
+            echo "❌ ERROR: Idempotency or execution failed. 'changed', 'failed', 'unreachable', or 'skipped' counts are not 0 on second run."
             exit 1
           fi
-          echo "✅ Idempotency test successful!"
+          echo "✅ Idempotency and execution test successful!"
 
       - name: Verify Web Services Health
         run: |
