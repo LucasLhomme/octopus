@@ -93,12 +93,12 @@ jobs:
           docker run -d --name result --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw -p 8081:80 --network octopus_net jrei/systemd-debian:13
           docker run -d --name worker --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw --network octopus_net jrei/systemd-debian:13
 
-      - name: Prepare Containers (Install Python 3 and APT bindings)
+      - name: Prepare Containers (Install Python 3, APT bindings and GnuPG)
         run: |
           echo "Installing prerequisites on all containers..."
           for container in redis postgresql poll result worker; do
             docker exec $container apt-get update
-            docker exec $container apt-get install -y python3 python3-apt
+            docker exec $container apt-get install -y python3 python3-apt gnupg
           done
 
       - name: Prepare Worker Container (Install Java 11 and Maven)
