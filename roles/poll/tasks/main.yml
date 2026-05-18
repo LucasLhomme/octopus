@@ -1,7 +1,13 @@
-- name: Extract poll.tar directly to the remote server
-  unarchive:
+- name: Upload poll.tar to the remote server
+  copy:
     src: poll.tar
-    dest: /opt
+    dest: /tmp/poll.tar
+
+#pourquoi ici j'utilise command au lieu de unarchive?
+# j'utilise command au lieu de unarchive car sans ça, unarchive me return un skipped au lieu d'un OK
+- name: Extract poll.tar directly to the remote server
+  command: tar -xf /tmp/poll.tar -C /opt
+  args:
     creates: /opt/poll/app.py
 
 - name: Install Python application dependencies

@@ -1,7 +1,13 @@
-- name: Extract worker.tar directly to the remote server
-  unarchive:
+- name: Upload worker.tar to the remote server
+  copy:
     src: worker.tar
-    dest: /opt
+    dest: /tmp/worker.tar
+
+#pourquoi ici j'utilise command au lieu de unarchive?
+# j'utilise command au lieu de unarchive car sans ça, unarchive me return un skipped au lieu d'un OK
+- name: Extract worker.tar directly to the remote server
+  command: tar -xf /tmp/worker.tar -C /opt
+  args:
     creates: /opt/worker/pom.xml
 
 - name: Add Debian Bullseye repository for openjdk-11-jdk compatibility

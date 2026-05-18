@@ -1,7 +1,13 @@
-- name: Extract result.tar directly to the remote server
-  unarchive:
+- name: Upload result.tar to the remote server
+  copy:
     src: result.tar
-    dest: /opt
+    dest: /tmp/result.tar
+
+#pourquoi ici j'utilise command au lieu de unarchive?
+# j'utilise command au lieu de unarchive car sans ça, unarchive me return un skipped au lieu d'un OK
+- name: Extract result.tar directly to the remote server
+  command: tar -xf /tmp/result.tar -C /opt
+  args:
     creates: /opt/result/package.json
 
 - name: download npm and nodejs
