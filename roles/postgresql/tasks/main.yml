@@ -34,6 +34,12 @@
     line: "listen_addresses = '*'"
   notify: restart postgresql
 
+- name: Start and enable PostgreSQL service
+  systemd:
+    name: postgresql
+    state: started
+    enabled: yes
+
 - name: Create PostgreSQL user paul
   community.postgresql.postgresql_user:
     name: "{{ postgres_user }}"
@@ -69,9 +75,3 @@
     role: "{{ postgres_user }}"
     type: table
   become_user: postgres
-
-- name: Start and enable PostgreSQL service
-  systemd:
-    name: postgresql
-    state: started
-    enabled: yes
