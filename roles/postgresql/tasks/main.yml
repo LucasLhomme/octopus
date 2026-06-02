@@ -1,14 +1,25 @@
 - name: Download PostgreSQL GPG key
   get_url:
     url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
-    dest: /etc/apt/trusted.gpg.d/apt.postgresql.org.asc
-    mode: '0644'
+    dest: /usr/share/keyrings/apt.postgresql.org.gpg
+    mode: "0644"
+  become: true
 
-- name: Add PostgreSQL official APT repository
-  apt_repository:
-    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/apt.postgresql.org.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
-    state: present
-    update_cache: yes
+- name: Add PostgreSQL APT repository (PGDG) using deb822
+  deb822_repository:
+    name: pgdg
+    types:
+      - deb
+      - deb-src
+    uris:
+      - http://apt.postgresql.org/pub/repos/apt
+    suites:
+      - "{{ ansible_facts['distribution_release'] }}-pgdg"
+    components:
+      - main
+    signed_by: /usr/share/keyrings/apt.postgresql.org.gpg
+    install_python_debian: yes
+  become: true
 
 - name: Install PostgreSQL and Python dependencies
   apt:
