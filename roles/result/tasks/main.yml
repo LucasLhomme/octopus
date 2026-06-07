@@ -15,23 +15,11 @@
     name: [ "nodejs", "npm" ]
     state: present
     update_cache: yes
-    
-- name: Upgrade pg driver version in package.json to pg@8 to prevent hanging on Node 18+
-  lineinfile:
-    path: /opt/result/package.json
-    search_string: '"pg": "^4.4.3"'
-    line: '    "pg": "^8.11.0",'
 
 - name: install npm dependencies
   npm:
     path: "/opt/result"
     state: present
-
-- name: Add pg.connect support to server.js
-  lineinfile:
-    path: /opt/result/server.js
-    insertbefore: BOF
-    line: 'require("pg").connect = function(c,cb){ if(!this.p)this.p=new this.Pool({connectionString:c}); this.p.connect(cb); };'
 
 - name: Copy systemd service file for Result
   template:
@@ -44,3 +32,4 @@
     name: result
     state: started
     enabled: yes
+    daemon_reload: yes

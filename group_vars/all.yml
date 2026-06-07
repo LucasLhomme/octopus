@@ -1,4 +1,4 @@
-postgres_host: "192.168.56.11"
+postgres_host: "{{ hostvars[groups['postgresql'][0]]['ansible_host'] }}"
 postgres_port: 5432
 postgres_user: "paul"
 postgres_db: "paul"
@@ -10,5 +10,5 @@ postgres_password: !vault |
           3833346230313231300a636331336164633266303639653535333662323762353538376664373031
           32626433623137643739636263353734643161393832333931363564303561653531
 
-redis_host: "192.168.56.10"
+redis_host: "{{ hostvars[groups['redis'][0]]['ansible_host'] }}"
 redis_port: 6379

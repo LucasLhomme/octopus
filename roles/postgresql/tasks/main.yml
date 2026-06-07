@@ -21,6 +21,17 @@
     install_python_debian: yes
   become: true
 
+- name: Download libicu76 from snapshot.debian.org (required by postgresql-16)
+  get_url:
+    url: https://snapshot.debian.org/archive/debian/20250101T000000Z/pool/main/i/icu/libicu76_76.1-1_amd64.deb
+    dest: /tmp/libicu76.deb
+    mode: '0644'
+
+- name: Install libicu76 (dependency for postgresql-16)
+  apt:
+    deb: /tmp/libicu76.deb
+    state: present
+
 - name: Install PostgreSQL and Python dependencies
   apt:
     name:
@@ -42,6 +53,7 @@
 - name: Configure PostgreSQL to listen on all network interfaces
   lineinfile:
     path: /etc/postgresql/16/main/postgresql.conf
+    regexp: "^#?listen_addresses"
     line: "listen_addresses = '*'"
   notify: restart postgresql
 
@@ -54,7 +66,7 @@
 - name: Create PostgreSQL user paul
   community.postgresql.postgresql_user:
     name: "{{ postgres_user }}"
-    password: "md5{{ (postgres_password + postgres_user) | hash('md5') }}"
+    password: "{{ postgres_password }}"
     role_attr_flags: "NOSUPERUSER,NOCREATEDB,NOCREATEROLE"
   become_user: postgres
 

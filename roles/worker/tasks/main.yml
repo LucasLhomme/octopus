@@ -10,24 +10,18 @@
   args:
     creates: /opt/worker/pom.xml
 
-- name: Add Debian Bullseye repository for openjdk-11-jdk compatibility
-  apt_repository:
-    repo: "deb http://deb.debian.org/debian bullseye main"
-    state: present
-    update_cache: yes
-
 - name: download maven and java
   apt:
-    name: [ "maven", "openjdk-11-jdk" ]
+    name: [ "maven", "openjdk-21-jdk" ]
     state: present
     update_cache: yes
 
 - name: compile worker
-  ansible.builtin.command: mvn package
+  ansible.builtin.command: mvn package -DskipTests
   args:
     chdir: /opt/worker
     creates: /opt/worker/target/worker-jar-with-dependencies.jar
-    
+
 - name: Copy systemd service file for worker
   template:
     src: "{{ role_path }}/files/worker.service"
@@ -39,3 +33,4 @@
     name: worker
     state: started
     enabled: yes
+    daemon_reload: yes

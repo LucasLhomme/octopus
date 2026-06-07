@@ -6,14 +6,15 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/worker/target
-ExecStart=/usr/bin/java -jar /opt/worker/target/worker-jar-with-dependencies.jar --spring.profiles.active=prod
+ExecStart=/usr/bin/java -jar /opt/worker/target/worker-jar-with-dependencies.jar
 Environment="REDIS_HOST={{ redis_host }}"
 Environment="REDIS_PORT={{ redis_port }}"
-Environment="POSTGRESQL_HOST={{ postgres_host }}"
-Environment="POSTGRESQL_PORT={{ postgres_port }}"
-Environment="POSTGRESQL_USER={{ postgres_user }}"
-Environment="POSTGRESQL_PASSWORD={{ postgres_password }}"
-Environment="POSTGRESQL_DB={{ postgres_db }}"
+Environment="POSTGRES_HOST={{ postgres_host }}"
+Environment="POSTGRES_PORT={{ postgres_port }}"
+Environment="POSTGRES_USER={{ postgres_user }}"
+Environment="POSTGRES_PASSWORD={{ postgres_password }}"
+Environment="POSTGRES_DB={{ postgres_db }}"
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

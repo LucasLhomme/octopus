@@ -6,15 +6,16 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/result
-ExecStart=/usr/bin/npm start
+ExecStart=/usr/bin/node /opt/result/server.js
 Environment="REDIS_HOST={{ redis_host }}"
 Environment="REDIS_PORT={{ redis_port }}"
-Environment="POSTGRESQL_HOST={{ postgres_host }}"
-Environment="POSTGRESQL_PORT={{ postgres_port }}"
-Environment="POSTGRESQL_USER={{ postgres_user }}"
-Environment="POSTGRESQL_PASSWORD={{ postgres_password }}"
-Environment="POSTGRESQL_DB={{ postgres_db }}"
+Environment="POSTGRES_HOST={{ postgres_host }}"
+Environment="POSTGRES_PORT={{ postgres_port }}"
+Environment="POSTGRES_USER={{ postgres_user }}"
+Environment="POSTGRES_PASSWORD={{ postgres_password }}"
+Environment="POSTGRES_DB={{ postgres_db }}"
 Environment="PORT=80"
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
