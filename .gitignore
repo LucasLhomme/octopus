@@ -2,7 +2,6 @@
 .vagrant/
 *.log
 *.zip
-B-DOP-400_octopus.pdf
 Vagrantfile
 octopus-setup.sh
 TESTING.md
@@ -11,3 +10,4 @@ octopus.md
 *.pdf
 production.prod
 production.sujet
+production
