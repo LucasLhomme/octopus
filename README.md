@@ -1,20 +1,44 @@
-# Octopus Project (B-DOP-400)
+# Octopus — Infrastructure as Code with Ansible
 
-This repository contains the Ansible infrastructure for the Octopus project.
+A DevOps project centered on **Ansible** and **infrastructure as code**: automatically
+deploying a multi-service polling application across **5 machines**, without containers,
+purely through automation.
 
-## Structure
-- `production`: Inventory file for the 5 target VMs.
-- `playbook.yml`: Main playbook to orchestrate the deployment.
-- `roles/`: Ansible roles for each component (Poll, Redis, Worker, Postgres, Result).
-- `group_vars/`: Global and group-specific variables.
-- `*.tar`: Application source code archives.
+Built as part of the Epitech curriculum (DOP-400 module).
 
-## Usage
-1. Activate the environment:
-   ```bash
-   source venv/bin/activate
-   ```
-2. Run the playbook:
-   ```bash
-   ansible-playbook -i production playbook.yml
-   ```
+## 🏗️ Deployed application
+
+A distributed voting app made of several services:
+
+- **Poll** (Python / Flask) — front-end collecting the votes
+- **Redis** — in-memory queue for incoming votes
+- **Worker** (Java) — consumes votes from Redis and writes them to PostgreSQL
+- **PostgreSQL** — persistent storage
+- **Result** (Node.js) — front-end displaying live results
+
+## ✨ Features
+
+- 🤖 Configuration management with Ansible (playbooks, roles, inventory)
+- 🖥️ Deployment across 5 target VMs described declaratively (desired state)
+- 📦 One dedicated role per component (Poll, Redis, Worker, Postgres, Result)
+- ♻️ Reproducible, scalable, container-free deployment
+
+## 🚀 Usage
+
+```bash
+source venv/bin/activate
+ansible-playbook -i production playbook.yml
+```
+
+## 🛠️ Tech stack
+
+Ansible · Flask · Redis · Java · PostgreSQL · Node.js
+
+## 🧠 What I learned
+
+Automating deployment to eliminate human error — describing *what the machines should be*
+rather than configuring them by hand. The essence of DevOps.
+
+---
+
+*Project built as part of the Epitech curriculum (DOP-400 module).*
